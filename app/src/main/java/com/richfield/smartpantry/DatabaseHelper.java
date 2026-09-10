@@ -40,4 +40,59 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_PANTRY);
         onCreate(db);
     }
+
+    // --- CRUD OPERATIONS ---
+
+    // Create
+    public boolean addIngredient(Ingredient ingredient) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NAME, ingredient.getName());
+        cv.put(COLUMN_QTY, ingredient.getQuantity());
+        cv.put(COLUMN_UNIT, ingredient.getUnit());
+        cv.put(COLUMN_EXPIRY, ingredient.getExpiryDate());
+        long insert = db.insert(TABLE_PANTRY, null, cv);
+        return insert != -1;
+    }
+
+    // Read
+    public List<Ingredient> getAllPantryItems() {
+        List<Ingredient> returnList = new ArrayList<>();
+        String queryString = "SELECT * FROM " + TABLE_PANTRY;
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                int id = cursor.getInt(0);
+                String name = cursor.getString(1);
+                double qty = cursor.getDouble(2);
+                String unit = cursor.getString(3);
+                String expiry = cursor.getString(4);
+                returnList.add(new Ingredient(id, name, qty, unit, expiry));
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return returnList;
+    }
+
+    // Update
+    public boolean updateIngredient(Ingredient ingredient) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_NAME, ingredient.getName());
+        cv.put(COLUMN_QTY, ingredient.getQuantity());
+        cv.put(COLUMN_UNIT, ingredient.getUnit());
+        cv.put(COLUMN_EXPIRY, ingredient.getExpiryDate());
+        int update = db.update(TABLE_PANTRY, cv, COLUMN_ID + " = ?", new String[]{String.valueOf(ingredient.getId())});
+        return update > 0;
+    }
+
+    // Delete
+    public boolean deleteIngredient(int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int delete = db.delete(TABLE_PANTRY, COLUMN_ID + " = ?", new String[]{String.valueOf(id)});
+        return delete > 0;
+    }
 }
