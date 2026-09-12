@@ -23,7 +23,7 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_suggested_recipes);
 
         recyclerView = findViewById(R.id.recipeRecyclerView);
-        noRecipesText = findViewById(R.id.textNoRecipes); // Feedback for zero matches
+        noRecipesText = findViewById(R.id.textNoRecipes);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         dbHelper = new DatabaseHelper(this);
@@ -40,14 +40,16 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
         } else {
             noRecipesText.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
-            // adapter = new RecipeAdapter(matchedRecipes, this);
-            // recyclerView.setAdapter(adapter);
+
+            // Uncommented and connected to your RecipeAdapter
+            adapter = new RecipeAdapter(matchedRecipes);
+            recyclerView.setAdapter(adapter);
         }
     }
 
     /**
      * CORE LOGIC: The Strict-Matching Rule.
-     * Evaluates if every required ingredient is present in the pantry in the required quantity.
+     * Evaluates if every required ingredient is present in the pantry.
      */
     private List<Recipe> findStrictMatches(List<Recipe> allRecipes, List<Ingredient> pantry) {
         List<Recipe> suggested = new ArrayList<>();
@@ -59,17 +61,16 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
                 boolean hasSpecificIngredient = false;
 
                 for (Ingredient stocked : pantry) {
-                    // Simple string match ignoring case to handle trivial differences
                     if (stocked.getName().trim().equalsIgnoreCase(required.getName().trim()) &&
                             stocked.getQuantity() >= required.getQuantity()) {
                         hasSpecificIngredient = true;
-                        break; // Found the ingredient, move to next requirement
+                        break;
                     }
                 }
 
                 if (!hasSpecificIngredient) {
-                    canCook = false; // Missing an ingredient or insufficient quantity
-                    break; // Fails strict matching, skip this recipe
+                    canCook = false;
+                    break;
                 }
             }
 
@@ -80,17 +81,23 @@ public class SuggestedRecipesActivity extends AppCompatActivity {
         return suggested;
     }
 
-    // Seeded database of recipes
     private List<Recipe> getSeededRecipes() {
         List<Recipe> list = new ArrayList<>();
-        // Example Recipe 1
-        List<Ingredient> omeletteReq = Arrays.asList(
-                new Ingredient(0, "Eggs", 3.0, "pcs", ""),
-                new Ingredient(0, "Milk", 50.0, "ml", "")
-        );
-        list.add(new Recipe(1, "Basic Omelette", "Whisk eggs and milk. Fry until golden.", omeletteReq));
 
-        // Add 14-19 more to meet the 15-20 recipe requirement
+        // Recipe 1: Simple Pasta (Requires Tomatoes & Pasta)
+        List<Ingredient> pastaReq = Arrays.asList(
+                new Ingredient(0, "Tomatoes", 1.0, "kg", ""),
+                new Ingredient(0, "Pasta", 1.0, "pack", "")
+        );
+        list.add(new Recipe(1, "Simple Pasta", "Boil pasta, chop tomatoes, stir together and serve hot.", pastaReq));
+
+        // Recipe 2: Tomato Soup (Requires Tomatoes & Onion)
+        List<Ingredient> soupReq = Arrays.asList(
+                new Ingredient(0, "Tomatoes", 1.0, "kg", ""),
+                new Ingredient(0, "Onion", 1.0, "pcs", "")
+        );
+        list.add(new Recipe(2, "Tomato Soup", "Blend tomatoes and onions, then simmer with seasoning.", soupReq));
+
         return list;
     }
 }
