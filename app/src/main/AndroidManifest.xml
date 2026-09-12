@@ -11,6 +11,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.SmartPantryManager">
+        <activity android:name=".AddEditIngredientActivity" />
+        <activity android:name=".SuggestedRecipesActivity" />
+        <activity android:name=".RecipeDetailActivity" />
+        <activity android:name=".SettingsActivity" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
